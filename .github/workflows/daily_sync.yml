@@ -33,21 +33,22 @@ jobs:
         run: |
           echo ">>> Step 1: Scanning for new links..."
           node scan_latest.js
-          
+
           echo ">>> Step 2: Scraping content..."
           node scrape_content.js
-          
+
           echo ">>> Step 3: Regenerating HTML..."
           node markdown_to_html.js
 
       - name: Commit and Push changes
+        id: commit
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          
+
           # Add the modified files
           git add links.json DOP-C02_Questions.md DOP-C02_Questions.html links.json.bak
-          
+
           # Commit if there are changes
           if git diff --staged --quiet; then
             echo "No changes to commit."
@@ -55,4 +56,3 @@ jobs:
             git commit -m "chore: daily questions sync $(date +'%Y-%m-%d')"
             git push
           fi
-
