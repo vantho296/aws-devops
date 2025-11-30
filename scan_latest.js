@@ -1,5 +1,8 @@
-const { chromium } = require('playwright');
+const { chromium } = require('playwright-extra');
+const stealth = require('puppeteer-extra-plugin-stealth');
 const fs = require('fs');
+
+chromium.use(stealth());
 
 (async () => {
   const limitPages = 50; // Scan first 50 pages for updates
@@ -17,10 +20,14 @@ const fs = require('fs');
   const existingUrls = new Set(foundLinks.map((l) => l.url));
   let newLinksCount = 0;
 
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: true,
+    channel: 'chrome', // Try to use real Chrome if available
+    args: ['--disable-blink-features=AutomationControlled'], // Extra safety
+  });
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  const randomDelay = () => Math.floor(Math.random() * 3000) + 3000;
+  const randomDelay = () => Math.floor(Math.random() * 5000) + 5000; // Increased delay 5-10s
 
   const processPage = async (pageNum, context) => {
     const url = `https://www.examtopics.com/discussions/amazon/${pageNum}/`;
@@ -28,10 +35,12 @@ const fs = require('fs');
 
     try {
       await sleep(randomDelay());
+
       const response = await page.goto(url, {
         waitUntil: 'domcontentloaded',
         timeout: 60000,
       });
+
       const status = response.status();
 
       if (status === 429 || status === 403) {
@@ -39,7 +48,10 @@ const fs = require('fs');
       }
 
       const title = await page.title();
-      if (title.includes('Too Many Requests'))
+      if (
+        title.includes('Too Many Requests') ||
+        title.includes('Just a moment')
+      )
         throw new Error('Blocked by anti-bot detection');
 
       const links = await page.evaluate(() => {
@@ -56,7 +68,6 @@ const fs = require('fs');
       });
 
       if (links.length > 0) {
-        // console.log(`[Page ${pageNum}] Found ${links.length} links.`);
         for (const link of links) {
           if (!existingUrls.has(link)) {
             const match = link.match(/view\/(\d+)-/);
@@ -81,21 +92,6 @@ const fs = require('fs');
     viewport: { width: 1920, height: 1080 },
     locale: 'en-US',
     timezoneId: 'Asia/Ho_Chi_Minh',
-    extraHTTPHeaders: {
-      Accept:
-        'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Cache-Control': 'max-age=0',
-      'Sec-Ch-Ua':
-        '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-      'Sec-Ch-Ua-Mobile': '?0',
-      'Sec-Ch-Ua-Platform': '"Windows"',
-      'Sec-Fetch-Dest': 'document',
-      'Sec-Fetch-Mode': 'navigate',
-      'Sec-Fetch-Site': 'none',
-      'Sec-Fetch-User': '?1',
-      'Upgrade-Insecure-Requests': '1',
-    },
   });
 
   // Export results to Github Actions Env if running in CI
