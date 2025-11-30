@@ -1,9 +1,9 @@
-name: Daily Question Sync
+name: Weekly Question Sync
 
 on:
   schedule:
-    # Runs at 19:00 UTC every day (which is 02:00 AM Vietnam Time UTC+7)
-    - cron: '0 19 * * *'
+    # Runs at 19:00 UTC every Sunday (which is 02:00 AM Monday Vietnam Time UTC+7)
+    - cron: '0 19 * * 0'
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 permissions:
