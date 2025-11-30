@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+package-lock.json # Optional: usually committed, but some prefer not to if using yarn/pnpm exclusively. I'll keep it out of ignore usually. Wait, standard is to commit lock file.
+# Removing package-lock.json from ignore.
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+# We ignore screenshots as they are large and the new HTML report uses text.
+screenshots/
+# Temporary or backup files
+*.bak
+*.tmp
+temp/
+
+# Optional: If you want to ignore the generated output and only keep code
+# DOP-C02_Questions.html
+# DOP-C02_Questions.md
+# But usually you want these in the repo to view them.
+

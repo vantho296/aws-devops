@@ -1,0 +1,58 @@
+name: Daily Question Sync
+
+on:
+  schedule:
+    # Runs at 19:00 UTC every day (which is 02:00 AM Vietnam Time UTC+7)
+    - cron: '0 19 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+permissions:
+  contents: write
+
+jobs:
+  sync-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Sync Process
+        # We run the scripts sequentially
+        run: |
+          echo ">>> Step 1: Scanning for new links..."
+          node scan_latest.js
+          
+          echo ">>> Step 2: Scraping content..."
+          node scrape_content.js
+          
+          echo ">>> Step 3: Regenerating HTML..."
+          node markdown_to_html.js
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # Add the modified files
+          git add links.json DOP-C02_Questions.md DOP-C02_Questions.html links.json.bak
+          
+          # Commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: daily questions sync $(date +'%Y-%m-%d')"
+            git push
+          fi
+

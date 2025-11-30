@@ -1,0 +1,17 @@
+{
+  "name": "tool-crawl",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "markdown-it": "^14.1.0",
+    "node-cron": "^4.2.1",
+    "playwright": "^1.57.0"
+  }
+}
