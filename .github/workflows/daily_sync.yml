@@ -43,6 +43,9 @@ jobs:
           echo ">>> Regenerating HTML..."
           node markdown_to_html.js
 
+          echo ">>> Creating index.html for Pages..."
+          cp DOP-C02_Questions.html index.html
+
       - name: Commit and Push changes
         if: steps.scan.outputs.new_links_found == 'true'
         id: commit
@@ -51,7 +54,7 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
           # Add the modified files
-          git add links.json DOP-C02_Questions.md DOP-C02_Questions.html links.json.bak
+          git add links.json DOP-C02_Questions.md DOP-C02_Questions.html index.html links.json.bak
 
           # Commit if there are changes
           if git diff --staged --quiet; then
