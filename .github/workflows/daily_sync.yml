@@ -35,7 +35,7 @@ jobs:
           node scan_latest.js
 
       - name: Scrape & Generate HTML (Step 2 & 3)
-        if: steps.scan.outputs.new_links_found == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.scan.outputs.new_links_found == 'true'
         run: |
           echo ">>> New links found! Starting content scrape..."
           node scrape_content.js
@@ -44,7 +44,7 @@ jobs:
           node markdown_to_html.js
 
       - name: Commit and Push changes
-        if: steps.scan.outputs.new_links_found == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.scan.outputs.new_links_found == 'true'
         id: commit
         run: |
           git config --global user.name 'github-actions[bot]'
