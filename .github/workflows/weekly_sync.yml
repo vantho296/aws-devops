@@ -1,4 +1,4 @@
-name: Weekly Question Sync
+name: Weekly scanning and syncing questions
 
 on:
   schedule:
