@@ -28,19 +28,23 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run Sync Process
-        # We run the scripts sequentially
+      - name: Run Scan (Step 1)
+        id: scan
         run: |
           echo ">>> Step 1: Scanning for new links..."
           node scan_latest.js
 
-          echo ">>> Step 2: Scraping content..."
+      - name: Scrape & Generate HTML (Step 2 & 3)
+        if: steps.scan.outputs.new_links_found == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          echo ">>> New links found! Starting content scrape..."
           node scrape_content.js
 
-          echo ">>> Step 3: Regenerating HTML..."
+          echo ">>> Regenerating HTML..."
           node markdown_to_html.js
 
       - name: Commit and Push changes
+        if: steps.scan.outputs.new_links_found == 'true' || github.event_name == 'workflow_dispatch'
         id: commit
         run: |
           git config --global user.name 'github-actions[bot]'

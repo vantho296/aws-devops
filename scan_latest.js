@@ -77,8 +77,33 @@ const fs = require('fs');
 
   const context = await browser.newContext({
     userAgent:
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    viewport: { width: 1920, height: 1080 },
+    locale: 'en-US',
+    timezoneId: 'Asia/Ho_Chi_Minh',
+    extraHTTPHeaders: {
+      Accept:
+        'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Cache-Control': 'max-age=0',
+      'Sec-Ch-Ua':
+        '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+      'Sec-Ch-Ua-Mobile': '?0',
+      'Sec-Ch-Ua-Platform': '"Windows"',
+      'Sec-Fetch-Dest': 'document',
+      'Sec-Fetch-Mode': 'navigate',
+      'Sec-Fetch-Site': 'none',
+      'Sec-Fetch-User': '?1',
+      'Upgrade-Insecure-Requests': '1',
+    },
   });
+
+  // Export results to Github Actions Env if running in CI
+  const setOutput = (name, value) => {
+    if (process.env.GITHUB_OUTPUT) {
+      fs.appendFileSync(process.env.GITHUB_OUTPUT, `${name}=${value}\n`);
+    }
+  };
 
   console.log(`Scanning first ${limitPages} pages for new questions...`);
 
@@ -104,7 +129,9 @@ const fs = require('fs');
     // Sort by ID to keep order
     foundLinks.sort((a, b) => a.id - b.id);
     fs.writeFileSync(outputFile, JSON.stringify(foundLinks, null, 2));
+    setOutput('new_links_found', 'true');
   } else {
     console.log('No new links found.');
+    setOutput('new_links_found', 'false');
   }
 })();
